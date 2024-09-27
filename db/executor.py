@@ -1,14 +1,26 @@
 import logging
 import cx_Oracle
+import sys
+import os
 from django.db import connections
 from datetime import datetime
-from config.handler_settings import (ORACLE_FUNCTIONS,
-                                     OPERATORS,
-                                     MOB3_IPS, MTS_IPS,
-                                     KS_IPS, LIFE_IPS)
+from config.settings import (ORACLE_FUNCTIONS,
+                             OPERATORS,
+                             MOB3_IPS, MTS_IPS,
+                             KS_IPS, LIFE_IPS)
 
-# for development
-cx_Oracle.init_oracle_client(lib_dir="/Users/dmitriypodkovko/Downloads/instantclient_19_8")
+
+try:
+    if sys.platform.startswith("darwin"):
+        lib_dir = os.path.join(os.environ.get("HOME"), "Downloads",
+                               "instantclient_19_8")
+        cx_Oracle.init_oracle_client(lib_dir=lib_dir)
+    elif sys.platform.startswith("win32"):
+        lib_dir = r"C:\oracle\instantclient_19_24"
+        cx_Oracle.init_oracle_client(lib_dir=lib_dir)
+except Exception as e:
+    print(e)
+    sys.exit(1)
 
 
 class DBExecutor:
@@ -20,9 +32,11 @@ class DBExecutor:
     def connect_on(self) -> bool:
         try:
             self._cursor = connections['filter'].cursor()
+            print(f'CONNECT ON')
             logging.info(f'CONNECT ON')
             return True
         except Exception as e:
+            print(f'DB error connect on:\n {str(e)}')
             logging.error(f'DB error connect on:\n {str(e)}')
             self.errors += 'connect on error\n'
             return False
@@ -30,8 +44,10 @@ class DBExecutor:
     def connect_off(self) -> None:
         try:
             self._cursor.close()
+            print(f'CONNECT OFF')
             logging.info(f'CONNECT OFF')
         except Exception as e:
+            print(f'DB error connect off:\n {str(e)}')
             logging.error(f'DB error connect off:\n {str(e)}')
             self.errors += 'connect off error\n'
 
@@ -59,15 +75,19 @@ class DBExecutor:
             # if checkout.check_inner():
             if checkout.check():
                 oracle_func = ORACLE_FUNCTIONS.get('tel_func')
+                print(f'{oracle_func}, {username}, {ip}, {port}, {operator}, {dt}')
                 logging.info(f'{oracle_func}, {username}, {ip}, {port}, {operator}, {dt}')
                 ref_cursor = self._cursor.callfunc(oracle_func, cx_Oracle.CURSOR,
                                                    [username, ip, port, operator, dt])
+                print(f'request done')
                 logging.info(f'request done')
             else:
                 oracle_func = ORACLE_FUNCTIONS.get('inner_tel_func')
+                print(f'{oracle_func}, {username}, {ip}, {operator}, {dt}')
                 logging.info(f'{oracle_func}, {username}, {ip}, {operator}, {dt}')
                 ref_cursor = self._cursor.callfunc(oracle_func, cx_Oracle.CURSOR,
                                                    [username, ip, operator, dt])
+                print(f'request done')
                 logging.info(f'request done')
             if ref_cursor:
                 for row in ref_cursor.fetchall():
@@ -75,6 +95,7 @@ class DBExecutor:
                         result.add(i)
             return result
         except Exception as e:
+            print(f'DB error execute:\n {str(e)}')
             logging.error(f'DB error execute:\n {str(e)}')
             self.errors += 'execute error\n'
             return {'ERROR'}
@@ -84,16 +105,20 @@ class DBExecutor:
             result = set()
             for number in numbers:
                 oracle_func = ORACLE_FUNCTIONS.get('check_tel_func')
+                print(f'{oracle_func}, {number}')
                 logging.info(f'{oracle_func}, {number}')
                 response = self._cursor.callfunc(oracle_func, int,
                                                  [number])
+                print(f'request done')
                 logging.info(f'request done')
                 if bool(response):
                     result.add(number)
                 else:
+                    print(f'OK')
                     logging.info(f'OK')
             return result
         except Exception as e:
+            print(f'DB error execute:\n {str(e)}')
             logging.error(f'DB error execute:\n {str(e)}')
             self.errors += 'check numbers error\n'
             return result
@@ -111,24 +136,28 @@ class CheckoutIP:
 
     def _case_3MOB(self) -> bool:
         if (self._first_two_ip_octets or self._first_three_ip_octets) in MOB3_IPS:
+            print(f'_case_3MOB for func -> True')
             logging.info(f'_case_3MOB for func -> True')
             return True
         return False
 
     def _case_MTS(self) -> bool:
         if (self._first_two_ip_octets or self._first_three_ip_octets) in MTS_IPS:
+            print(f'_case_MTS for func -> True')
             logging.info(f'_case_MTS for func -> True')
             return True
         return False
 
     def _case_KS(self) -> bool:
         if (self._first_two_ip_octets or self._first_three_ip_octets) in KS_IPS:
+            print(f'_case_KS for func -> True')
             logging.info(f'_case_KS for func -> True')
             return True
         return False
 
     def _case_LIFE(self) -> bool:
         if (self._first_two_ip_octets or self._first_three_ip_octets) in LIFE_IPS:
+            print(f'_case_LIFE for func -> True')
             logging.info(f'_case_LIFE for func -> True')
             return True
         return False

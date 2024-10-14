@@ -8,11 +8,13 @@ from config.settings import (EXCEL_ROW_COLUMN,
 
 
 class ExcelHandler:
-    def __init__(self, xlsx_file) -> None:
+    def __init__(self, xlsx_file, xlsx_file_path) -> None:
         self._xlsx_file = xlsx_file
+        self._xlsx_file_path = xlsx_file_path
         self._DST_column_idx = None
-        self._xlsx_output_file = None
         self._current_row = EXCEL_ROW_COLUMN.get('default').get('Start_row')
+        self.xlsx_output_file = None
+        self.xlsx_remote_output_file = None
         self.errors = ''
 
     def get_ip_list_from_xlsx_file(self) -> list[tuple[Any, Any, Any, Any, Any]] | list[Any]:
@@ -41,7 +43,7 @@ class ExcelHandler:
             self.errors += 'get xlsx error\n'
             return []
 
-    def create_output_xlsx_file(self, user_directory) -> None:
+    def create_output_xlsx_file(self, user_directory, user_local_directory) -> None:
         try:
             workbook = openpyxl.load_workbook(self._xlsx_file)
             sheet = workbook.active
@@ -50,13 +52,14 @@ class ExcelHandler:
             else:
                 self._DST_column_idx = sheet.max_column + 1
                 sheet.cell(row=1, column=self._DST_column_idx, value=DESTINATION_NUMBER)
-            file_name, file_extensions = os.path.splitext(self._xlsx_file)
+            file_name, file_extensions = os.path.splitext(self._xlsx_file_path)
             file_name = os.path.basename(file_name)
-            self._xlsx_output_file = f'{user_directory}/{file_name}{EXCEL_OUTPUT_FILE_PREFIX}.xlsx'
-            workbook.save(self._xlsx_output_file)
+            self.xlsx_output_file = f'{user_local_directory}/{file_name}{EXCEL_OUTPUT_FILE_PREFIX}.xlsx'
+            self.xlsx_remote_output_file = f'{user_directory}/{file_name}{EXCEL_OUTPUT_FILE_PREFIX}.xlsx'
+            workbook.save(self.xlsx_output_file)
             workbook.close()
-            print(f'CREATED: {self._xlsx_output_file}')
-            logging.info(f'CREATED: {self._xlsx_output_file}')
+            print(f'CREATED: {self.xlsx_output_file}')
+            logging.info(f'CREATED: {self.xlsx_output_file}')
         except Exception as e:
             print(f'Error creating .xlsx file:\n {self._xlsx_file} ({str(e)})')
             logging.error(f'Error creating .xlsx file:\n {self._xlsx_file} ({str(e)})')
@@ -64,7 +67,7 @@ class ExcelHandler:
 
     def save_result_to_output_xlsx_file(self, dst_list: list) -> None:
         try:
-            workbook = openpyxl.load_workbook(self._xlsx_output_file)
+            workbook = openpyxl.load_workbook(self.xlsx_output_file)
             sheet = workbook.active
             for dst_set in dst_list:
                 current_column_idx = self._DST_column_idx
@@ -72,7 +75,7 @@ class ExcelHandler:
                     sheet.cell(row=self._current_row, column=current_column_idx, value=number)
                     current_column_idx += 1
                 self._current_row += 1
-            workbook.save(self._xlsx_output_file)
+            workbook.save(self.xlsx_output_file)
             workbook.close()
             print(f'saved')
             logging.info(f'saved')

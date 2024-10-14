@@ -7,6 +7,13 @@ Installation:
 6. Download Oracle Instant V19 from https://www.oracle.com/database/technologies/instant-client/winx64-64-downloads.html
 7. Unzip to C:\oracle\instantclient_19_24 and check this path in the file IP-finder-service\db\executor.py
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+For offline installation, in our case for Windows Storage Server 2012 R2,
+we should install Python 3.10 and run the offline command:
+    py -3.10 -m pip install --no-index --find-links ./packages -r requirements.txt
 
-py -3.10 -m pip install --no-index --find-links ./packages -r requirements.txt
-py -3.10 -m pip list
+check installed packages:
+    py -3.10 -m pip list
+   or
+    pip list
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

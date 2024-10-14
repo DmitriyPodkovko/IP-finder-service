@@ -1,18 +1,26 @@
 from pathlib import Path
 
+# SFTP connection settings
+SFTP_HOST = ''
+SFTP_PORT = 22  # SFTP default port
+SFTP_USERNAME = ''
+SFTP_PASSWORD = ''
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Build paths like this: BASE_DIR / 'subdir'
+# Build local paths like this: BASE_DIR / 'subdir'
 # BASE_DIR / 'subdir' = './subdir'
-INPUT_FOLDER = BASE_DIR / 'INPUT'
-RESULT_FOLDER = BASE_DIR / 'RESULT'
+INPUT_FOLDER = '/FILES/IN/'
+RESULT_FOLDER = '/FILES/OUT/'
+RESULT_LOCAL_FOLDER = BASE_DIR / 'RESULT'
+# ARCHIVE_FOLDER = '/FILES/ARCHIVE'
 ARCHIVE_FOLDER = BASE_DIR / 'ARCHIVE'
+# WARNING_FOLDER = '/FILES/WARNING'
 WARNING_FOLDER = BASE_DIR / 'WARNING'
 
 # Folder check interval in seconds
-INTERVAL = 10
+INTERVAL = 60
 
 # Excel result column name
 DESTINATION_NUMBER = 'DST number'

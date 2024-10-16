@@ -145,7 +145,7 @@ def process_files(sftp, files):
                             errors += db_executor.errors
                     else:
                         errors += db_executor.errors
-                    if warning_numbers:
+                    if all_warning_numbers:
                         # moving from sftp to local
                         warning_file_path = os.path.join(WARNING_FOLDER,
                                                          os.path.basename(remote_file_path))

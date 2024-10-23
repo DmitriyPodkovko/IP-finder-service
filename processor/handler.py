@@ -64,6 +64,8 @@ def safe_move(sftp, old_path, new_path):
             # If the file doesn't exist, do nothing
             pass
         sftp.rename(old_path, new_path)
+        print(f'Moved file: {old_path} in {new_path}')
+        logging.info(f'Moved file: {old_path} in {new_path}')
     except Exception as e:
         print(f'Error moving file: {old_path} in {new_path}: {str(e)}')
         logging.info(f'Error moving file: {old_path} in {new_path}: {str(e)}')
@@ -73,6 +75,8 @@ def move_from_sftp_to_local(sftp, old_path, new_path):
     try:
         sftp.get(old_path, new_path)
         sftp.remove(old_path)
+        print(f'Moved file: {old_path} in {new_path}')
+        logging.info(f'Moved file: {old_path} in {new_path}')
     except Exception as e:
         print(f'Error moving file: {old_path} in {new_path}: {str(e)}')
         logging.info(f'Error moving file: {old_path} in {new_path}: {str(e)}')

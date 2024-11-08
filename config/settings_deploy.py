@@ -6,7 +6,8 @@ SFTP_PORT = 22  # SFTP default port
 SFTP_USERNAME = ''
 SFTP_PASSWORD = ''
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Build paths inside the project like this:
+# BASE_DIR / 'subdir'
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Build local paths like this: BASE_DIR / 'subdir'
@@ -21,6 +22,10 @@ WARNING_FOLDER = BASE_DIR / 'WARNING'
 
 # Folder check interval in seconds
 INTERVAL = 60
+
+# Request execution sleep interval after DB error
+# in seconds
+INTERVAL_DB_ERROR = 1200
 
 # Excel result column name
 DESTINATION_NUMBER = 'DST number'

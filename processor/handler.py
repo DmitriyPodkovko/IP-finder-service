@@ -1,4 +1,5 @@
 import os
+import time
 import logging
 # import shutil
 import tkinter as tk
@@ -7,7 +8,7 @@ from db.executor import DBExecutor
 from excel.handler import ExcelHandler
 from config.settings import (INPUT_FOLDER, RESULT_FOLDER,
                              ARCHIVE_FOLDER, WARNING_FOLDER,
-                             RESULT_LOCAL_FOLDER,
+                             RESULT_LOCAL_FOLDER, INTERVAL_DB_ERROR,
                              USERNAME, ROWS_QUANTITY)
 
 
@@ -123,6 +124,9 @@ def process_files(sftp, files):
                                 # if response is error then repeat request 5 time
                                 if DST_numbers and next(iter(DST_numbers)) == 'ERROR':
                                     for j in range(5):
+                                        time.sleep(INTERVAL_DB_ERROR)
+                                        print(f'!!! Fell asleep for {INTERVAL_DB_ERROR} seconds !!!')
+                                        logging.info(f'!!! Fell asleep for {INTERVAL_DB_ERROR} seconds !!!')
                                         DST_numbers = db_executor.execute(USERNAME, tuple_values)
                                         if DST_numbers and next(iter(DST_numbers)) != 'ERROR':
                                             break
@@ -149,34 +153,36 @@ def process_files(sftp, files):
                             errors += db_executor.errors
                     else:
                         errors += db_executor.errors
-                    if all_warning_numbers:
-                        # moving from sftp to local
-                        warning_file_path = os.path.join(WARNING_FOLDER,
-                                                         os.path.basename(remote_file_path))
-                        move_from_sftp_to_local(sftp, remote_file_path, warning_file_path)
-                        # sftp moving
-                        # warning_file_path = os.path.join(WARNING_FOLDER,
-                        #                                  os.path.basename(remote_file_path))
-                        # safe_move(sftp, remote_file_path, warning_file_path)
-                        # local moving
-                        # warning_file_path = os.path.join(WARNING_FOLDER, file_path)
-                        # shutil.move(file_path, warning_file_path)
-                    else:
-                        # we give the result file
-                        with sftp.file(excel_handler.xlsx_remote_output_file, 'wb') as remote_output_file:
-                            with open(excel_handler.xlsx_output_file, 'rb') as local_file:
-                                remote_output_file.write(local_file.read())
-                        # moving from sftp to local
-                        archive_file_path = os.path.join(ARCHIVE_FOLDER,
-                                                         os.path.basename(remote_file_path))
-                        move_from_sftp_to_local(sftp, remote_file_path, archive_file_path)
-                        # sftp moving
-                        # archive_file_path = os.path.join(ARCHIVE_FOLDER,
-                        #                                  os.path.basename(remote_file_path))
-                        # safe_move(sftp, remote_file_path, archive_file_path)
-                        # local moving
-                        # archive_file_path = os.path.join(ARCHIVE_FOLDER, os.path.basename(file_path))
-                        # shutil.move(file_path, archive_file_path)
+                    # move files only if there are no errors
+                    if not errors:
+                        if all_warning_numbers:
+                            # moving from sftp to local
+                            warning_file_path = os.path.join(WARNING_FOLDER,
+                                                             os.path.basename(remote_file_path))
+                            move_from_sftp_to_local(sftp, remote_file_path, warning_file_path)
+                            # sftp moving
+                            # warning_file_path = os.path.join(WARNING_FOLDER,
+                            #                                  os.path.basename(remote_file_path))
+                            # safe_move(sftp, remote_file_path, warning_file_path)
+                            # local moving
+                            # warning_file_path = os.path.join(WARNING_FOLDER, file_path)
+                            # shutil.move(file_path, warning_file_path)
+                        else:
+                            # we give the result file
+                            with sftp.file(excel_handler.xlsx_remote_output_file, 'wb') as remote_output_file:
+                                with open(excel_handler.xlsx_output_file, 'rb') as local_file:
+                                    remote_output_file.write(local_file.read())
+                            # moving from sftp to local
+                            archive_file_path = os.path.join(ARCHIVE_FOLDER,
+                                                             os.path.basename(remote_file_path))
+                            move_from_sftp_to_local(sftp, remote_file_path, archive_file_path)
+                            # sftp moving
+                            # archive_file_path = os.path.join(ARCHIVE_FOLDER,
+                            #                                  os.path.basename(remote_file_path))
+                            # safe_move(sftp, remote_file_path, archive_file_path)
+                            # local moving
+                            # archive_file_path = os.path.join(ARCHIVE_FOLDER, os.path.basename(file_path))
+                            # shutil.move(file_path, archive_file_path)
             except FileNotFoundError:
                 print(f"File not found: {remote_file_path}")
                 logging.error(f"File not found: {remote_file_path}")

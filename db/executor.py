@@ -43,7 +43,10 @@ class DBExecutor:
 
     def connect_off(self) -> None:
         try:
-            self._cursor.close()
+            if self._cursor:
+                self._cursor.close()
+            connections['filter'].close()
+            connections.close_all()
             print(f'CONNECT OFF')
             logging.info(f'CONNECT OFF')
         except Exception as e:

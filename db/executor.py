@@ -16,7 +16,7 @@ try:
                                "instantclient_19_8")
         cx_Oracle.init_oracle_client(lib_dir=lib_dir)
     elif sys.platform.startswith("win32"):
-        lib_dir = r"C:\oracle\instantclient_19_24"
+        lib_dir = r"C:\oracle\instantclient_19_28"
         cx_Oracle.init_oracle_client(lib_dir=lib_dir)
 except Exception as e:
     print(e)

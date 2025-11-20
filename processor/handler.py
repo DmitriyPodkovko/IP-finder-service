@@ -127,6 +127,8 @@ def process_files(sftp, files):
                                         time.sleep(INTERVAL_DB_ERROR)
                                         print(f'!!! Fell asleep for {INTERVAL_DB_ERROR} seconds !!!')
                                         logging.info(f'!!! Fell asleep for {INTERVAL_DB_ERROR} seconds !!!')
+                                        db_executor.connect_off()
+                                        db_executor.connect_on()
                                         DST_numbers = db_executor.execute(USERNAME, tuple_values)
                                         if DST_numbers and next(iter(DST_numbers)) != 'ERROR':
                                             break

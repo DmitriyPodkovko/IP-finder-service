@@ -6,8 +6,8 @@ import tkinter as tk
 from tkinter import messagebox
 from db.executor import DBExecutor
 from excel.handler import ExcelHandler
-from config.settings import (INPUT_FOLDER, RESULT_FOLDER,
-                             ARCHIVE_FOLDER, WARNING_FOLDER,
+from config.settings import (INPUT_FOLDER, RESULT_FOLDER, ARCHIVE_FOLDER,
+                             WARNING_FOLDER, ERROR_FOLDER,
                              RESULT_LOCAL_FOLDER, INTERVAL_DB_ERROR,
                              USERNAME, ROWS_QUANTITY)
 
@@ -17,12 +17,15 @@ def check_folders(sftp):
     #     os.makedirs(INPUT_FOLDER)
     if not os.path.exists(WARNING_FOLDER):
         os.makedirs(WARNING_FOLDER)
+    if not os.path.exists(ERROR_FOLDER):
+        os.makedirs(ERROR_FOLDER)
     if not os.path.exists(ARCHIVE_FOLDER):
         os.makedirs(ARCHIVE_FOLDER)
     if not os.path.exists(RESULT_LOCAL_FOLDER):
         os.makedirs(RESULT_LOCAL_FOLDER)
 
-    # folders = [INPUT_FOLDER, WARNING_FOLDER, ARCHIVE_FOLDER, RESULT_FOLDER]
+    # folders = [INPUT_FOLDER, WARNING_FOLDER, ERROR_FOLDER,
+    # ARCHIVE_FOLDER, RESULT_FOLDER]
     folders = [INPUT_FOLDER, RESULT_FOLDER]
     for folder in folders:
         try:
@@ -185,6 +188,11 @@ def process_files(sftp, files):
                             # local moving
                             # archive_file_path = os.path.join(ARCHIVE_FOLDER, os.path.basename(file_path))
                             # shutil.move(file_path, archive_file_path)
+                    else:
+                        # moving from sftp to local
+                        error_file_path = os.path.join(ERROR_FOLDER,
+                                                         os.path.basename(remote_file_path))
+                        move_from_sftp_to_local(sftp, remote_file_path, error_file_path)
             except FileNotFoundError:
                 print(f"File not found: {remote_file_path}")
                 logging.error(f"File not found: {remote_file_path}")

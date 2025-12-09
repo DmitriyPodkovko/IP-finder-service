@@ -193,6 +193,10 @@ def process_files(sftp, files):
                         error_file_path = os.path.join(ERROR_FOLDER,
                                                          os.path.basename(remote_file_path))
                         move_from_sftp_to_local(sftp, remote_file_path, error_file_path)
+                        # we give the result file
+                        with sftp.file(excel_handler.xlsx_remote_output_file, 'wb') as remote_output_file:
+                            with open(excel_handler.xlsx_output_file, 'rb') as local_file:
+                                remote_output_file.write(local_file.read())
             except FileNotFoundError:
                 print(f"File not found: {remote_file_path}")
                 logging.error(f"File not found: {remote_file_path}")
